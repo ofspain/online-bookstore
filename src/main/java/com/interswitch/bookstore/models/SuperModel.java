@@ -16,5 +16,5 @@ public class SuperModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime created;
+    private LocalDateTime created  = LocalDateTime.now();
 }
