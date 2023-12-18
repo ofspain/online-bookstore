@@ -1,13 +1,19 @@
 package com.interswitch.bookstore.utils.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class ApiResponse<T> extends ResponseEntity<ApiResponseWrapper<T>> {
 
+public class ApiResponse<T> extends ResponseEntity<ApiResponseWrapper<T>> implements Serializable {
+
+    @JsonCreator
     public ApiResponse(T body) {
 
         super(new ApiResponseWrapper<>(body), HttpStatus.OK);
@@ -30,7 +36,8 @@ public class ApiResponse<T> extends ResponseEntity<ApiResponseWrapper<T>> {
         super(new ApiResponseWrapper<>(message, statusCode), httpStatus);
     }
 
-    public ApiResponse(T body, HttpStatus status) {
+    @JsonCreator
+    public ApiResponse(@JsonProperty("body") T body, @JsonProperty("status") HttpStatus status) {
 
         super(new ApiResponseWrapper<>(body), status);
     }

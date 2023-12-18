@@ -7,7 +7,11 @@ public enum Messages {
 
     INVALID_AUTH_TOKEN("2002", "Authentication token is invalid"),
 
-    UNKNOW_AUTH_ERROR("2003", "Unidentified authentication error");
+    UNKNOW_AUTH_ERROR("2003", "Unidentified authentication error"),
+
+    NO_USER("2004", "No such user"),
+
+    WRONG_PASSWORD("2005", "Wrong password");
 
 
     private final String code;

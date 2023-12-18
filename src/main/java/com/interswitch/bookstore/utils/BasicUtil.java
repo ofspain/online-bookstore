@@ -1,5 +1,7 @@
 package com.interswitch.bookstore.utils;
 
+import org.springframework.security.crypto.bcrypt.BCrypt;
+
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -35,5 +37,15 @@ public class BasicUtil {
 
     public static boolean validString(String s){
         return null != s && !s.isEmpty();
+    }
+
+    public static boolean checkPassword(String password_plaintext, String stored_hash) {
+
+        if (null == stored_hash || !stored_hash.startsWith("$2a$")) {
+            return false;
+        }
+
+        return  BCrypt.checkpw(password_plaintext, stored_hash);
+
     }
 }

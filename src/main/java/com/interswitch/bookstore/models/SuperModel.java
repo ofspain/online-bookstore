@@ -7,6 +7,7 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @MappedSuperclass
 @Data
@@ -16,5 +17,5 @@ public class SuperModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime created  = LocalDateTime.now();
+    private Date created  = new Date();
 }
