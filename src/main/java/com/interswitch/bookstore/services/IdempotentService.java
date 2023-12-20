@@ -22,7 +22,6 @@ public class IdempotentService {
     public final static String IDEMPOTENT_KEY = "idempotent-key";
 
     @Cacheable(value = "idempotentCache", key = "'idempotent:' + #key")
-
     public ApiResponse<?> getResponse(String idempotentKey) {
 
         if(redisTemplate.hasKey("idempotent:"+idempotentKey)){

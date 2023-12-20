@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class LoginDto implements Serializable {
+public class LoginDTO implements Serializable {
 
     private User user;
 

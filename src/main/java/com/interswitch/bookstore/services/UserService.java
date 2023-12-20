@@ -1,6 +1,6 @@
 package com.interswitch.bookstore.services;
 
-import com.interswitch.bookstore.dtos.LoginDto;
+import com.interswitch.bookstore.dtos.LoginDTO;
 import com.interswitch.bookstore.exceptions.AuthenticationException;
 import com.interswitch.bookstore.models.User;
 import com.interswitch.bookstore.repositories.UserRepository;
@@ -30,7 +30,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public LoginDto login(String username, String password){
+    public LoginDTO login(String username, String password){
 
         User user = userRepository.findUserByUsername(username);
 
@@ -38,7 +38,7 @@ public class UserService {
         if(!BasicUtil.checkPassword(password,  user.getPassword())) throw new AuthenticationException(WRONG_PASSWORD);
 
         String token = jwtTokenProvider.generateToken(user.getUsername());
-        LoginDto loginDto = new LoginDto();
+        LoginDTO loginDto = new LoginDTO();
         loginDto.setToken(token);
         loginDto.setUser(user);
         return  loginDto;

@@ -11,7 +11,15 @@ public enum Messages {
 
     NO_USER("2004", "No such user"),
 
-    WRONG_PASSWORD("2005", "Wrong password");
+    WRONG_PASSWORD("2005", "Wrong password"),
+
+
+
+    PAYMENT_GATEWAY_NO_ACTIVE("3000", "No payment gateway supported at the moment"),
+    PAYMENT_INVALID_PAYMENT_METHOD("3002", "Payment method not supported"),
+
+    INCONSISTENT_CART_STATE("3001", "Inconsistent cart state trigger");
+
 
 
     private final String code;

@@ -41,6 +41,8 @@ public class User extends SuperModel implements UserDetails{
     @Column(unique = true)
     private String email;
 
+    private String address;
+
     private Boolean enabled = true;
 
     @Transient

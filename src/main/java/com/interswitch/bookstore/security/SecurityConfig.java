@@ -64,7 +64,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers( "/api/auth/**", "/h2-console/**");
+        return (web) -> web.ignoring().requestMatchers( "/api/auth/**", "/api/books/**","/h2-console/**");
     }
 
     @Bean

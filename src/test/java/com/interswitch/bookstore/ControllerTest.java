@@ -2,7 +2,11 @@ package com.interswitch.bookstore;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interswitch.bookstore.models.Author;
+import com.interswitch.bookstore.models.Book;
 import com.interswitch.bookstore.models.User;
+import com.interswitch.bookstore.services.AuthorService;
+import com.interswitch.bookstore.services.BookService;
 import com.interswitch.bookstore.services.IdempotentService;
 import com.interswitch.bookstore.utils.BasicUtil;
 import org.hamcrest.Matchers;
@@ -23,12 +27,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 public class ControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private BookService bookService;
+
+    @Autowired
+    private AuthorService authorService;
 
 
     @Test
@@ -106,6 +116,31 @@ public class ControllerTest {
             Map<String,Object> response2 = objectMapper.readValue(responseContent2, Map.class);
 
             assertEquals("Request must be successful", "00", String.valueOf(response2.get("status")));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testSearchBook() throws Exception{
+        Author author = authorService.saveAuthor(TestUtils.createAuthor());
+        Book book = TestUtils.createBook();
+        book.setAuthor(author);
+        bookService.saveBook(book);
+
+
+        HttpHeaders headers = new HttpHeaders();
+
+        MvcResult result = mockMvc.perform(get("/api/books?price=lte:"+book.getPrice())
+                .headers(headers).contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+
+        try {
+            Map<String,Object> response = new ObjectMapper().readValue(responseContent, Map.class);
+
+            assertEquals("Request must be successful", "00", String.valueOf(response.get("status")));
 
         } catch (Exception e) {
             e.printStackTrace();

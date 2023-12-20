@@ -1,6 +1,6 @@
 package com.interswitch.bookstore.controllers;
 
-import com.interswitch.bookstore.dtos.LoginDto;
+import com.interswitch.bookstore.dtos.LoginDTO;
 import com.interswitch.bookstore.models.User;
 import com.interswitch.bookstore.services.IdempotentService;
 import com.interswitch.bookstore.services.UserService;
@@ -8,7 +8,6 @@ import com.interswitch.bookstore.utils.BasicUtil;
 import com.interswitch.bookstore.utils.api.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("api/auth/")
+@RequestMapping("api/auth")
 public class AuthController {
     @Autowired
     UserService userService;
@@ -26,8 +25,6 @@ public class AuthController {
     @Autowired
     IdempotentService idempotentService;
 
-    @Autowired
-    private RedisTemplate<String, ApiResponse<?>> redisTemplate;
 
 
 
@@ -43,12 +40,12 @@ public class AuthController {
     }//dxzxytlcemlr
 
     @PostMapping("/login")
-    public ApiResponse<LoginDto> login(@RequestBody Map<String, String> request, @RequestHeader HttpHeaders headers){
+    public ApiResponse<LoginDTO> login(@RequestBody Map<String, String> request, @RequestHeader HttpHeaders headers){
         String idemKey = headers.getFirst(IdempotentService.IDEMPOTENT_KEY);
-        ApiResponse<LoginDto> cachedResponse = BasicUtil.validString(idemKey) ?  (ApiResponse<LoginDto>) idempotentService.getResponse(idemKey) : null;
+        ApiResponse<LoginDTO> cachedResponse = BasicUtil.validString(idemKey) ?  (ApiResponse<LoginDTO>) idempotentService.getResponse(idemKey) : null;
         if(null != cachedResponse){return cachedResponse;}
 
-        ApiResponse<LoginDto> response = new ApiResponse<>(userService.login(request.get("username"), request.get("password")), HttpStatus.OK);
+        ApiResponse<LoginDTO> response = new ApiResponse<>(userService.login(request.get("username"), request.get("password")), HttpStatus.OK);
         if(null != idemKey){idempotentService.saveResponse(idemKey, response);}
         return response;
     }

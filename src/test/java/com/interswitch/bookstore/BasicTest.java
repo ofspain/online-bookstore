@@ -26,8 +26,6 @@ import static org.mockito.Mockito.mock;
 @SpringBootTest(classes = TestConfig.class)
 public class BasicTest {
 
-    @Autowired
-    private YearValidatorImpl yearValidator;
 
     @Autowired
     private Validator validator;
@@ -35,13 +33,13 @@ public class BasicTest {
 
     @Test
     public void testValidRange() {
-       // YearValidatorImpl validator = new YearValidatorImpl();
+        YearValidatorImpl validator = new YearValidatorImpl();
 
-        assertTrue(yearValidator.isValid(2000, mock(ConstraintValidatorContext.class)));
+        assertTrue(validator.isValid(2000, mock(ConstraintValidatorContext.class)));
 
-        assertFalse(yearValidator.isValid(1800, mock(ConstraintValidatorContext.class)));
+        assertFalse(validator.isValid(1600, mock(ConstraintValidatorContext.class)));
 
-        assertFalse(yearValidator.isValid(null, mock(ConstraintValidatorContext.class)));
+        assertFalse(validator.isValid(null, mock(ConstraintValidatorContext.class)));
     }
 
     @Test
