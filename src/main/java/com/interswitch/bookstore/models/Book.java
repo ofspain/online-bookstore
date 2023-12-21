@@ -37,7 +37,6 @@ public class Book extends SuperModel{
     @JsonProperty("year_of_publication")
     private Integer yearOfPublication;
 
-   // @NotNull
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;

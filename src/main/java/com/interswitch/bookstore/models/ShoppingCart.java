@@ -21,7 +21,7 @@ public class ShoppingCart extends SuperModel{
     private List<CartItem> cartItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    private CartStatus status = CartStatus.ongoing;
+    private CartStatus status = CartStatus.ONGOING;
 
     @Enumerated(EnumType.STRING)
     private PaymentOption paymentOption;

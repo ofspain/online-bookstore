@@ -17,4 +17,11 @@ public class AddToCartDTO implements Serializable {
 
     @NotEmpty(message = "Cart must contain at least one Item")
     private List<CartItem> cartItems;
+
+    public AddToCartDTO(){}
+
+    public AddToCartDTO(ShoppingCart shoppingCart, List<CartItem> cartItems){
+        this.shoppingCart = shoppingCart;
+        this.cartItems = cartItems;
+    }
 }

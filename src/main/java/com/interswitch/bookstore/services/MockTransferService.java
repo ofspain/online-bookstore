@@ -39,9 +39,10 @@ public class MockTransferService implements TransferServiceInterface {
         PaymentResponse response = new PaymentResponse();
         Map<String,Object> payload = new HashMap<>();
         String jsonPayload = "{}";
+        String desc = paymentDetails.getShoppingCart().generateDescription();
         if(decider <= 0.75){
             payload = new HashMap<>(){{
-                put("description", paymentDetails.getDescription());
+                put("description", desc);
                 put("amount", paymentDetails.getAmount());
                 put("date", new Date().toString());
                 put("status", "Successful");
@@ -53,7 +54,7 @@ public class MockTransferService implements TransferServiceInterface {
 
         }else if(decider <= 0.85){
             payload = new HashMap<>(){{
-                put("description", paymentDetails.getDescription());
+                put("description", desc);
                 put("amount", paymentDetails.getAmount());
                 put("date", new Date().toString());
                 put("status", "Failed");

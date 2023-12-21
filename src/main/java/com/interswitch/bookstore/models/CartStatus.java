@@ -3,14 +3,14 @@ package com.interswitch.bookstore.models;
 public enum CartStatus {
 
     // Transition: "Ongoing" or "Pending"
-    processed,
+    PROCESSED,
 
     //Transition: ongoing
-    pending,
+    PENDING,
 
     //Transition: "Ongoing" or "Pending"
-    failed,
+    FAILED,
 
     // initial default
-    ongoing;
+    ONGOING;
 }

@@ -30,16 +30,16 @@ public class CartStateMachine {
         }
 
         switch (oldStatus) {
-            case failed, processed -> {
+            case FAILED, PROCESSED -> {
                 return false;
             }
-            case pending ->{
-                return newStatus.equals(CartStatus.failed) || newStatus.equals(CartStatus.processed);
+            case PENDING ->{
+                return newStatus.equals(CartStatus.FAILED) || newStatus.equals(CartStatus.PROCESSED);
             }
-            case ongoing ->{
-                return newStatus.equals(CartStatus.failed)
-                    || newStatus.equals(CartStatus.processed)
-                    || newStatus.equals(CartStatus.pending);
+            case ONGOING ->{
+                return newStatus.equals(CartStatus.FAILED)
+                    || newStatus.equals(CartStatus.PROCESSED)
+                    || newStatus.equals(CartStatus.PENDING);
             }
         }
 

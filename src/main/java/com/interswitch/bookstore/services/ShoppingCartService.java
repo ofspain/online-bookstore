@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,7 +52,7 @@ public class ShoppingCartService {
     }
 
     public Page<PurchaseHistory> findUserPurchaseHistory(User user, Pageable pageable) {
-        Page<ShoppingCart> shoppingCartsPage = cartRepository.findByStatusAndUser(CartStatus.processed, user, pageable);
+        Page<ShoppingCart> shoppingCartsPage = cartRepository.findByStatusAndUser(CartStatus.PROCESSED, user, pageable);
 
         List<PurchaseHistory> histories = shoppingCartsPage.getContent().stream()
                 .map(shoppingCart -> {
@@ -90,18 +91,21 @@ public class ShoppingCartService {
 
     }
 
-    private List<CartItem> mergeCartItems(List<CartItem> oldItems,List<CartItem> newItems){
-        for(CartItem newItem : newItems){
-            if(oldItems.contains(newItem)){
-                int index = oldItems.indexOf(newItem);
-                CartItem oldItem = oldItems.get(index);
+    private List<CartItem> mergeCartItems(List<CartItem> oldItems, List<CartItem> newItems) {
+        List<CartItem> mergedItems = new ArrayList<>(oldItems);
+
+        for (CartItem newItem : newItems) {
+            if (mergedItems.contains(newItem)) {
+                int index = mergedItems.indexOf(newItem);
+                CartItem oldItem = mergedItems.get(index);
                 oldItem.setQuantity(oldItem.getQuantity() + newItem.getQuantity());
-                oldItems.set(index,oldItem);
-            }else{
-                oldItems.add(newItem);
+                mergedItems.set(index, oldItem);
+            } else {
+                mergedItems.add(newItem);
             }
         }
 
-        return oldItems;
+        return mergedItems;
     }
+
 }

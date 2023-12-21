@@ -29,12 +29,12 @@ public class CheckoutService {
         CartStatus newStatus = shoppingCart.getStatus();
         switch(status){
             case FAILED ->{
-                newStatus = CartStatus.failed;
+                newStatus = CartStatus.FAILED;
             }
             case PENDING -> {
-                newStatus = CartStatus.pending;
+                newStatus = CartStatus.PENDING;
             }case SUCCESSFUL -> {
-                newStatus = CartStatus.processed;
+                newStatus = CartStatus.PROCESSED;
             }
         }
         shoppingCart.setPaymentOption(paymentOption);

@@ -35,6 +35,7 @@ public class MockPaymentGatewayService implements PaymentGatewayInterface {
 
     @Override
     public PaymentResponse processPayment(PaymentDetails paymentDetails) throws PaymentException {
+
         Map<String,String> cardMap = new HashMap<>(){{
             put("first_6digits", "553188");
             put("last_4digits", "2950");
@@ -45,11 +46,12 @@ public class MockPaymentGatewayService implements PaymentGatewayInterface {
         }};
         double decider = Math.random();
         PaymentResponse response = new PaymentResponse();
+        String desc = paymentDetails.getShoppingCart().generateDescription();
         Map<String,Object> payload = new HashMap<>();
         String jsonPayload = "{}";
         if(decider <= 0.85){
                 payload = new HashMap<>(){{
-                put("description", paymentDetails.getDescription());
+                put("description", desc);
                 put("amount", paymentDetails.getAmount());
                 put("date", new Date().toString());
                 put("status", "Successful");
@@ -62,7 +64,7 @@ public class MockPaymentGatewayService implements PaymentGatewayInterface {
 
         }else if(decider <= 0.95){
             payload = new HashMap<>(){{
-                put("description", paymentDetails.getDescription());
+                put("description", desc);
                 put("amount", paymentDetails.getAmount());
                 put("date", new Date().toString());
                 put("status", "Failed");
