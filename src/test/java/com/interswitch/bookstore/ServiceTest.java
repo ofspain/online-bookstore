@@ -1,14 +1,10 @@
 package com.interswitch.bookstore;
 
 import com.interswitch.bookstore.dtos.AddToCartDTO;
-import com.interswitch.bookstore.models.Author;
-import com.interswitch.bookstore.models.Book;
-import com.interswitch.bookstore.models.CartItem;
-import com.interswitch.bookstore.models.ShoppingCart;
-import com.interswitch.bookstore.services.AuthorService;
-import com.interswitch.bookstore.services.BookService;
-import com.interswitch.bookstore.services.IdempotentService;
-import com.interswitch.bookstore.services.ShoppingCartService;
+import com.interswitch.bookstore.dtos.LoginDTO;
+import com.interswitch.bookstore.exceptions.AuthenticationException;
+import com.interswitch.bookstore.models.*;
+import com.interswitch.bookstore.services.*;
 import com.interswitch.bookstore.utils.BasicUtil;
 import com.interswitch.bookstore.utils.api.ApiResponse;
 import org.junit.jupiter.api.Test;
@@ -19,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 @SpringBootTest(classes = TestConfig.class)
 public class ServiceTest {
@@ -34,6 +29,10 @@ public class ServiceTest {
 
     @Autowired
     private ShoppingCartService shoppingCartService;
+
+    @Autowired
+    private UserService userService;
+
 
     @Test
     public void testIdempotency() {
@@ -74,7 +73,34 @@ public class ServiceTest {
     }
 
     @Test
-    void testAddItemsToCart() {
+    public void testSaveUser(){
+        User user = TestUtils.createUser();
+        assertNull(user.getId(), "user in transient state");
+        user = userService.saveUser(user);
+
+        assertNotNull(user.getId(), "user persisted");
+    }
+
+    @Test
+    public void testLogin(){
+        User user = TestUtils.createUser();
+        String plainPassword = user.getPassword();
+        user = userService.saveUser(user);
+
+
+        assertThrows(AuthenticationException.class, () -> userService.login("my@domain.com", plainPassword));
+
+        User finalUser = user;
+        assertThrows(AuthenticationException.class, () -> userService.login(finalUser.getUsername(), "wrong_password"));
+
+        LoginDTO loginDTO = userService.login(user.getUsername(), plainPassword);
+        String jwtToken = loginDTO.getToken();
+        assertNotNull(jwtToken, "Auth token generated");
+
+    }
+
+    @Test
+    public void testAddItemsToCart() {
         List<Author> authors = new ArrayList<>();
         List<Book> books = new ArrayList<>();
 
