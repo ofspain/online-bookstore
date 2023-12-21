@@ -3,10 +3,13 @@ package com.interswitch.bookstore.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.interswitch.bookstore.dtos.InitializePaymentDTO;
+import com.interswitch.bookstore.models.CartStatus;
+import com.interswitch.bookstore.models.ShoppingCart;
 import com.interswitch.bookstore.utils.payment.PaymentDetails;
 import com.interswitch.bookstore.exceptions.PaymentException;
 import com.interswitch.bookstore.utils.payment.PaymentResponse;
 import com.interswitch.bookstore.utils.payment.web.PaymentGatewayInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,9 @@ public class MockPaymentGatewayService extends PaymentGatewayInterface {
 
     @Value("${mock.gateway.secrete.key}")
     private String secreteKey;
+
+    @Autowired
+    private CartStateMachine cartStateMachine;
 
 
 
@@ -98,6 +104,34 @@ public class MockPaymentGatewayService extends PaymentGatewayInterface {
     public String getServiceId() {
 
         return "mock_payment_gateway";
+    }
+
+    @Override
+    public void requery(ShoppingCart shoppingCart) {
+        double decider = Math.random();
+        CartStatus newStatus = CartStatus.PENDING;
+        PaymentResponse.PaymentStatus paymentStatus = PaymentResponse.PaymentStatus.SUCCESSFUL;
+        if(decider <= 0.85){
+            paymentStatus = PaymentResponse.PaymentStatus.SUCCESSFUL;
+
+        }else if(decider <= 0.95){
+            paymentStatus = PaymentResponse.PaymentStatus.FAILED;
+        }else{
+            paymentStatus = PaymentResponse.PaymentStatus.PENDING;;
+        }
+        switch (paymentStatus){
+            case SUCCESSFUL-> {newStatus = CartStatus.PROCESSED;}
+            case FAILED -> {newStatus = CartStatus.FAILED;}
+            default -> {newStatus = CartStatus.PENDING;}
+        }
+
+
+        if(newStatus.equals(CartStatus.PROCESSED)){
+            shoppingCart.setDatePaid(new Date());
+        }
+
+        cartStateMachine.transition(shoppingCart, newStatus);
+
     }
 
 }

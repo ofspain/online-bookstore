@@ -9,8 +9,8 @@ public interface PaymentInterface {
 
     /**
      * Initialize the payment gateway.
-     * @param shoppingCart The cart we are making payment for
-     * @return InitializationResponse The response of this process
+     * @param initializePaymentDTO The cart we are making payment for and other necesssary details
+     * @return PaymentDetails The response of this process
      */
     PaymentDetails initialize(InitializePaymentDTO initializePaymentDTO);
 
@@ -29,5 +29,7 @@ public interface PaymentInterface {
      * @return a unique string to identify this provider by the application
      */
     String getServiceId();
+
+    void requery(ShoppingCart shoppingCart);
 }
 

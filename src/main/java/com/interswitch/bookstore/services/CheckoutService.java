@@ -44,6 +44,7 @@ public class CheckoutService {
         if(newStatus.equals(CartStatus.PROCESSED)){
             shoppingCart.setDatePaid(new Date());
         }
+        shoppingCart.setTransactionReference(paymentRequest.getReference());
         shoppingCart = stateMachine.transition(shoppingCart, newStatus);
 
         return shoppingCart;

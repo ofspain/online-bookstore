@@ -30,6 +30,9 @@ public class ShoppingCart extends SuperModel{
     @Column(name = "date_paid")
     private Date datePaid;
 
+    @Column(name = "transaction_reference")
+    private String transactionReference;
+
     public double calculateShoppingCost(boolean expressInLowestDenomination){
         double cost = 0.0;
 

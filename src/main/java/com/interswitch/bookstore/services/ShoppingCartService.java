@@ -91,6 +91,10 @@ public class ShoppingCartService {
 
     }
 
+    public Page<ShoppingCart> findPendingShopping(Pageable pageable){
+        return this.cartRepository.findByStatus(CartStatus.PENDING, pageable);
+    }
+
     private List<CartItem> mergeCartItems(List<CartItem> oldItems, List<CartItem> newItems) {
         List<CartItem> mergedItems = new ArrayList<>(oldItems);
 
