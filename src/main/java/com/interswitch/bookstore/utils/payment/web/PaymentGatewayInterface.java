@@ -5,7 +5,7 @@ import com.interswitch.bookstore.utils.payment.PaymentDetails;
 import com.interswitch.bookstore.utils.payment.PaymentInterface;
 import com.interswitch.bookstore.utils.payment.PaymentResponse;
 
-public interface PaymentGatewayInterface extends PaymentInterface {
+public abstract class PaymentGatewayInterface implements PaymentInterface {
 
 
     /**
@@ -13,7 +13,11 @@ public interface PaymentGatewayInterface extends PaymentInterface {
      *
      * @return Secret key.
      */
-    String getPublicKey();
+   protected abstract String getPublicKey();
+
+    protected String generateTransactionPrefix(){
+        return "WEB";
+    }
 
 }
 

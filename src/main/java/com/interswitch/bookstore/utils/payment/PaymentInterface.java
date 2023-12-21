@@ -1,5 +1,6 @@
 package com.interswitch.bookstore.utils.payment;
 
+import com.interswitch.bookstore.dtos.InitializePaymentDTO;
 import com.interswitch.bookstore.exceptions.PaymentException;
 import com.interswitch.bookstore.models.ShoppingCart;
 
@@ -11,7 +12,7 @@ public interface PaymentInterface {
      * @param shoppingCart The cart we are making payment for
      * @return InitializationResponse The response of this process
      */
-    PaymentDetails initialize(ShoppingCart shoppingCart);
+    PaymentDetails initialize(InitializePaymentDTO initializePaymentDTO);
 
     /**
      * Process a payment transaction.

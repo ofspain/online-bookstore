@@ -13,11 +13,11 @@ import java.util.List;
 @Table(name="shopping_carts")
 public class ShoppingCart extends SuperModel{
 
-    @OneToOne
+    @ManyToOne
     private User user;
 
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<CartItem> cartItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

@@ -1,10 +1,13 @@
 package com.interswitch.bookstore.services;
 
+import com.interswitch.bookstore.dtos.InitializePaymentDTO;
 import com.interswitch.bookstore.models.CartStatus;
 import com.interswitch.bookstore.models.ShoppingCart;
 import com.interswitch.bookstore.utils.payment.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Service
 public class CheckoutService {
@@ -38,13 +41,16 @@ public class CheckoutService {
             }
         }
         shoppingCart.setPaymentOption(paymentOption);
+        if(newStatus.equals(CartStatus.PROCESSED)){
+            shoppingCart.setDatePaid(new Date());
+        }
         shoppingCart = stateMachine.transition(shoppingCart, newStatus);
 
         return shoppingCart;
     }
 
-    public PaymentDetails setupPaymentEnvironment(ShoppingCart shoppingCart, PaymentOption paymentOption){
-        return choiceFactory.getPaymentChoiceImplementation(paymentOption).initialize(shoppingCart);
+    public PaymentDetails setupPaymentEnvironment(InitializePaymentDTO initializePaymentDTO, PaymentOption paymentOption){
+        return choiceFactory.getPaymentChoiceImplementation(paymentOption).initialize(initializePaymentDTO);
     }
 }
 

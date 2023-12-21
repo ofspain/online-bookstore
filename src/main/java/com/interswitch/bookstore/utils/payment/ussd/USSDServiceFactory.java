@@ -1,4 +1,4 @@
-package com.interswitch.bookstore.utils.payment.web;
+package com.interswitch.bookstore.utils.payment.ussd;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,24 +9,23 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class PaymentGatewayServiceFactory{
+public class USSDServiceFactory {
 
-    private Map<String, PaymentGatewayInterface> serviceMap = new HashMap<>();
+    private Map<String, USSDServiceInterface> serviceMap = new HashMap<>();
 
-    //payment gateway in use.
-    @Value("${services.payment.gateway.id}")
+    @Value("${services.ussd.id}")
     private String serviceId;
 
     @Autowired
-    public PaymentGatewayServiceFactory(List<PaymentGatewayInterface> gateways) {
+    public USSDServiceFactory(List<USSDServiceInterface> gateways) {
         gateways.forEach(this::register);
     }
 
-    private void register(PaymentGatewayInterface gatewayInterface) {
+    private void register(USSDServiceInterface gatewayInterface) {
         serviceMap.put(gatewayInterface.getServiceId(), gatewayInterface);
     }
 
-    public PaymentGatewayInterface getInstance() {
+    public USSDServiceInterface getInstance() {
         return serviceMap.get(serviceId);
     }
 }

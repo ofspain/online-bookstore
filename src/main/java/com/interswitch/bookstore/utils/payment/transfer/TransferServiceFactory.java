@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class TransferServiceFactory {
+public class TransferServiceFactory{
 
     private Map<String, TransferServiceInterface> serviceMap = new HashMap<>();
 

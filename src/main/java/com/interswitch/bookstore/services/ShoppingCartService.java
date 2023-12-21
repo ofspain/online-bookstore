@@ -48,7 +48,7 @@ public class ShoppingCartService {
         String id = shoppingCart.getUser().getId().toString();
         redisTemplate.opsForValue().set("shoppingcart:" + id, shoppingCart);
 
-        return false;
+        return true;
     }
 
     public Page<PurchaseHistory> findUserPurchaseHistory(User user, Pageable pageable) {
