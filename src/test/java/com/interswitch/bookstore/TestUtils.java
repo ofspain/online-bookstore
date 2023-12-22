@@ -1,11 +1,12 @@
 package com.interswitch.bookstore;
 
-import com.interswitch.bookstore.models.Author;
-import com.interswitch.bookstore.models.Book;
-import com.interswitch.bookstore.models.Genre;
-import com.interswitch.bookstore.models.User;
+import com.interswitch.bookstore.models.*;
 import com.interswitch.bookstore.utils.BasicUtil;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class TestUtils {
@@ -43,5 +44,6 @@ public class TestUtils {
 
         return author;
     }
+
 
 }

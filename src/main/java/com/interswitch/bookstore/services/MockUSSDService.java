@@ -9,8 +9,10 @@ import com.interswitch.bookstore.exceptions.PaymentException;
 import com.interswitch.bookstore.models.CartStatus;
 import com.interswitch.bookstore.models.ShoppingCart;
 import com.interswitch.bookstore.utils.payment.PaymentDetails;
+import com.interswitch.bookstore.utils.payment.PaymentOption;
 import com.interswitch.bookstore.utils.payment.PaymentResponse;
 import com.interswitch.bookstore.utils.payment.ussd.USSDServiceInterface;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.util.Map;
 
 import static com.interswitch.bookstore.utils.BasicUtil.bankOptionToPayTo;
 
+@Slf4j
 @Service("mock_ussd_service")
 public class MockUSSDService  extends USSDServiceInterface {
 
@@ -33,20 +36,22 @@ public class MockUSSDService  extends USSDServiceInterface {
         System.out.println("User bank details "+bankDetail);
 
         PaymentDetails paymentDetails = new PaymentDetails(initializePaymentDTO
-                .getShoppingCart(), false, getTransactionPrefix());
+                .getShoppingCart(), PaymentOption.USSD,false, getTransactionPrefix());
 
         //call ussd end point with required details e.g bank and sort cord,amount etc to generate unique ussd code for this transaction
         //intercept response to construct need parameters for payment e.g code to dial etc
+        String ussdCode = "*777*0000*R3009#";
         paymentDetails.setDetails(new HashMap<>(){{
-            put("ussd_code", "*777*0000*R3009#");
+            put("ussd_code", ussdCode);
             put("validity", 24);
         }});
+        log.info("Initializing ussd payment with code {} ",ussdCode);
         return paymentDetails;
     }
 
     @Override
     public PaymentResponse processPayment(PaymentDetails paymentDetails) throws PaymentException {
-
+        log.info("Making payment with reference {}",paymentDetails.getReference());
         double decider = Math.random();
         PaymentResponse response = new PaymentResponse();
         String desc = paymentDetails.getShoppingCart().generateDescription();
@@ -101,6 +106,7 @@ public class MockUSSDService  extends USSDServiceInterface {
 
     @Override
     public void requery(ShoppingCart shoppingCart) {
+        log.info("Requering for ussd {}",shoppingCart.getTransactionReference());
         double decider = Math.random();
         CartStatus newStatus = CartStatus.PENDING;
         PaymentResponse.PaymentStatus paymentStatus = PaymentResponse.PaymentStatus.SUCCESSFUL;

@@ -7,14 +7,17 @@ import com.interswitch.bookstore.models.CartStatus;
 import com.interswitch.bookstore.models.ShoppingCart;
 import com.interswitch.bookstore.utils.payment.PaymentDetails;
 import com.interswitch.bookstore.exceptions.PaymentException;
+import com.interswitch.bookstore.utils.payment.PaymentOption;
 import com.interswitch.bookstore.utils.payment.PaymentResponse;
 import com.interswitch.bookstore.utils.payment.web.PaymentGatewayInterface;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Slf4j
 @Service("mock_payment_gateway")
 public class MockPaymentGatewayService extends PaymentGatewayInterface {
 
@@ -31,18 +34,19 @@ public class MockPaymentGatewayService extends PaymentGatewayInterface {
 
     @Override
     public PaymentDetails initialize(InitializePaymentDTO initializePaymentDTO) {
-        PaymentDetails paymentDetails = new PaymentDetails(initializePaymentDTO.getShoppingCart(),
+        PaymentDetails paymentDetails = new PaymentDetails(initializePaymentDTO.getShoppingCart(), PaymentOption.WEB,
                 true, generateTransactionPrefix());
         paymentDetails.setDetails(new HashMap<>(){{
             put("public_key",publicKey);
         }});
+        log.info("initializing payment for web");
         return paymentDetails;
     }
 
 
     @Override
     public PaymentResponse processPayment(PaymentDetails paymentDetails) throws PaymentException {
-
+        log.info("Making web payment with reference {}",paymentDetails.getReference());
         Map<String,String> cardMap = new HashMap<>(){{
             put("first_6digits", "553188");
             put("last_4digits", "2950");
@@ -108,6 +112,8 @@ public class MockPaymentGatewayService extends PaymentGatewayInterface {
 
     @Override
     public void requery(ShoppingCart shoppingCart) {
+
+        log.info("Requering for web {}",shoppingCart.getTransactionReference());
         double decider = Math.random();
         CartStatus newStatus = CartStatus.PENDING;
         PaymentResponse.PaymentStatus paymentStatus = PaymentResponse.PaymentStatus.SUCCESSFUL;

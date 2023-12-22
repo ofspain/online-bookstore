@@ -9,9 +9,11 @@ public enum Messages {
 
     UNKNOW_AUTH_ERROR("2003", "Unidentified authentication error"),
 
-    NO_USER("2004", "No such user"),
+    NO_AUTH_USER("2004", "No authenticated user"),
 
-    WRONG_PASSWORD("2005", "Wrong password"),
+    NO_USER("2005", "No such user"),
+
+    WRONG_PASSWORD("2006", "Wrong password"),
 
 
 

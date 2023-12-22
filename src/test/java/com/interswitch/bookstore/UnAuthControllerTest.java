@@ -27,12 +27,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest()
 @AutoConfigureMockMvc
-public class ControllerTest {
+public class UnAuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
 
     @Autowired
     private BookService bookService;
@@ -146,4 +147,5 @@ public class ControllerTest {
             e.printStackTrace();
         }
     }
+
 }

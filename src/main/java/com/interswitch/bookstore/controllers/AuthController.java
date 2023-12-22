@@ -1,5 +1,6 @@
 package com.interswitch.bookstore.controllers;
 
+import com.interswitch.bookstore.dtos.IdempotenceDTO;
 import com.interswitch.bookstore.dtos.LoginDTO;
 import com.interswitch.bookstore.models.User;
 import com.interswitch.bookstore.services.IdempotentService;
@@ -24,20 +25,20 @@ public class AuthController {
 
     @Autowired
     IdempotentService idempotentService;
-
-
-
+    
 
     @PostMapping("/sign-up")
     public ApiResponse<User> signup(@Valid @RequestBody User userRequest, @RequestHeader HttpHeaders headers){
         String idemKey = headers.getFirst(IdempotentService.IDEMPOTENT_KEY);
         ApiResponse<User> cachedResponse = BasicUtil.validString(idemKey) ? (ApiResponse<User>) idempotentService.getResponse(idemKey) : null;
-        if(null != cachedResponse){return cachedResponse;}
+        if(null != cachedResponse){
+            return cachedResponse;
+        }
 
         ApiResponse<User> response = new ApiResponse<>(userService.saveUser(userRequest), HttpStatus.OK);
-        if(null != idemKey){idempotentService.saveResponse(idemKey, response);}
+        if(null != idemKey){idempotentService.saveResponse(idemKey, new IdempotenceDTO<User>(response.getBody(), response.getHttpStatus()));}
         return response;
-    }//dxzxytlcemlr
+    }
 
     @PostMapping("/login")
     public ApiResponse<LoginDTO> login(@RequestBody Map<String, String> request, @RequestHeader HttpHeaders headers){
@@ -46,7 +47,7 @@ public class AuthController {
         if(null != cachedResponse){return cachedResponse;}
 
         ApiResponse<LoginDTO> response = new ApiResponse<>(userService.login(request.get("username"), request.get("password")), HttpStatus.OK);
-        if(null != idemKey){idempotentService.saveResponse(idemKey, response);}
+        if(null != idemKey){idempotentService.saveResponse(idemKey, new IdempotenceDTO<LoginDTO>(response.getBody(), response.getHttpStatus()));}
         return response;
     }
 

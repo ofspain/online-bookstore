@@ -13,4 +13,6 @@ public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, Long
     Page<ShoppingCart> findByStatus(CartStatus status, Pageable pageable);
 
     Page<ShoppingCart> findByStatusAndUser(CartStatus status, User user, Pageable pageable);
+
+    ShoppingCart findByTransactionReference(String transactionRefernce);
 }

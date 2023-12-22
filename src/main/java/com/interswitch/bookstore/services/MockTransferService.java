@@ -9,8 +9,10 @@ import com.interswitch.bookstore.models.CartStatus;
 import com.interswitch.bookstore.utils.payment.PaymentDetails;
 import com.interswitch.bookstore.exceptions.PaymentException;
 import com.interswitch.bookstore.models.ShoppingCart;
+import com.interswitch.bookstore.utils.payment.PaymentOption;
 import com.interswitch.bookstore.utils.payment.PaymentResponse;
 import com.interswitch.bookstore.utils.payment.transfer.TransferServiceInterface;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ import java.util.Map;
 import static com.interswitch.bookstore.utils.BasicUtil.bankOptionToPayFrom;
 import static com.interswitch.bookstore.utils.BasicUtil.bankOptionToPayTo;
 
+@Slf4j
 @Service("mock_transfer_service")
 public class MockTransferService extends TransferServiceInterface {
 
@@ -31,17 +34,18 @@ public class MockTransferService extends TransferServiceInterface {
 
     @Override
     public PaymentDetails initialize(InitializePaymentDTO initializePaymentDTO) {
-        PaymentDetails paymentDetails = new PaymentDetails(initializePaymentDTO.getShoppingCart(),
+        PaymentDetails paymentDetails = new PaymentDetails(initializePaymentDTO.getShoppingCart(), PaymentOption.TRANSFER,
                 true, generateTransactionPrefix());
         paymentDetails.setDetails(new HashMap<>(){{
             put("bank_options",bankOptionToPayTo());
         }});
+        log.info("Initializing transfer payment");
         return paymentDetails;
     }
 
     @Override
     public PaymentResponse processPayment(PaymentDetails paymentDetails) throws PaymentException {
-
+        log.info("Making transfer payment with reference {}",paymentDetails.getReference());
         double decider = Math.random();
         PaymentResponse response = new PaymentResponse();
         Map<String,Object> payload = new HashMap<>();
@@ -102,6 +106,7 @@ public class MockTransferService extends TransferServiceInterface {
 
     @Override
     public void requery(ShoppingCart shoppingCart) {
+        log.info("Requering for transfer {}",shoppingCart.getTransactionReference());
         double decider = Math.random();
         CartStatus newStatus = CartStatus.PENDING;
         PaymentResponse.PaymentStatus paymentStatus = PaymentResponse.PaymentStatus.SUCCESSFUL;

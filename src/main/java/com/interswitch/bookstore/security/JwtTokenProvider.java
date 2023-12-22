@@ -59,7 +59,8 @@ public class JwtTokenProvider {
   public Authentication getAuthentication(String token, HttpServletRequest request) {
     User user = jwtUserDetailsService.loadUserByUsername(getUsernameFromToken(token));
     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    if(null != request)
+      auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
     /**
      * We can access this details later using this snippet

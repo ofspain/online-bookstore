@@ -3,11 +3,14 @@ package com.interswitch.bookstore;
 import com.interswitch.bookstore.dtos.*;
 import com.interswitch.bookstore.exceptions.AuthenticationException;
 import com.interswitch.bookstore.models.*;
+import com.interswitch.bookstore.security.JwtTokenProvider;
 import com.interswitch.bookstore.services.*;
 import com.interswitch.bookstore.utils.BasicUtil;
 import com.interswitch.bookstore.utils.api.ApiResponse;
+import com.interswitch.bookstore.utils.api.PaginateApiResponse;
 import com.interswitch.bookstore.utils.payment.PaymentDetails;
 import com.interswitch.bookstore.utils.payment.PaymentOption;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
@@ -15,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 
@@ -49,6 +54,9 @@ public class ServiceTest {
     @Autowired
     private CheckoutService checkoutService;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
 
     @Test
     public void testIdempotency() {
@@ -59,7 +67,7 @@ public class ServiceTest {
         }};
         ApiResponse<Map<String,String>> response = new ApiResponse<>(data, HttpStatus.OK);
         String randKey = BasicUtil.generateRandomAlphet(20).toLowerCase();
-        idempotentService.saveResponse(randKey, response);
+        idempotentService.saveResponse(randKey, new IdempotenceDTO<Map<String,String>>(response.getBody(), HttpStatus.OK));
 
         assertNotNull(idempotentService.getResponse(randKey));
         assertNull(idempotentService.getResponse(BasicUtil.generateRandomAlphet(20).toLowerCase()));
@@ -207,7 +215,7 @@ public class ServiceTest {
         }
 
         ShoppingCart cart = new ShoppingCart();
-        User user = userService.saveUser(TestUtils.createUser());
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();//userService.saveUser(TestUtils.createUser());
 
 
         CartItem cartItem1 = new CartItem();
@@ -228,14 +236,14 @@ public class ServiceTest {
         cart.setCartItems(cartItems);
         boolean cached = shoppingCartService.cacheOngoingShopping(cart);
         assertTrue(cached,"caching successful");
-        ShoppingCart retrievedCache = shoppingCartService.retrieveCachedCart(user);
-
-        assertTrue(cart.getCartItems().equals(retrievedCache.getCartItems()));
+        ShoppingCart retrievedCache = shoppingCartService.retrieveCachedCart();
+//
+       assertTrue(cart.getCartItems().equals(retrievedCache.getCartItems()));
     }
 
     @Test
     public void testPurchaseHistory(){
-        User user = userService.saveUser(TestUtils.createUser());
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Author> authors = new ArrayList<>();
         List<Book> books = new ArrayList<>();
 
@@ -319,20 +327,20 @@ public class ServiceTest {
         cart3 = cartStateMachine.transition(cart3,newStatus);
 
 
-        Page<PurchaseHistory> historyPage = shoppingCartService.findUserPurchaseHistory(user, PageRequest.of(0, 1));
+        PaginateApiResponse historyPage = shoppingCartService.findUserPurchaseHistory(PageRequest.of(0, 1));
 
-        assertTrue(historyPage.getContent().size() == 1);
+        assertTrue(historyPage.getPaginationBody().getData().size() == 1);
 
-        historyPage = shoppingCartService.findUserPurchaseHistory(user, PageRequest.of(0, 4));
-        assertTrue(historyPage.getContent().size() == 3);
+        historyPage = shoppingCartService.findUserPurchaseHistory(PageRequest.of(0, 4));
+        assertTrue(historyPage.getPaginationBody().getData().size() == 3);
 
-        historyPage = shoppingCartService.findUserPurchaseHistory(user, PageRequest.of(3, 1));
-        assertTrue(historyPage.getContent().size() == 0);
+        historyPage = shoppingCartService.findUserPurchaseHistory(PageRequest.of(3, 1));
+        assertTrue(historyPage.getPaginationBody().getData().size() == 0);
     }
 
     @Test
     public void testInitializePayment(){
-        User user = userService.saveUser(TestUtils.createUser());
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();//userService.saveUser(TestUtils.createUser());
         List<Author> authors = new ArrayList<>();
         List<Book> books = new ArrayList<>();
 
@@ -366,8 +374,8 @@ public class ServiceTest {
         cart1.setCartItems(cartItems);
         cart1.setUser(user);
 
-        PaymentDetails transferPaymentDetails = transferService.initialize(new InitializePaymentDTO(cart1));
-        PaymentDetails webPaymentDetails = paymentGatewayService.initialize(new InitializePaymentDTO(cart1));
+        PaymentDetails transferPaymentDetails = transferService.initialize(new InitializePaymentDTO(cart1, PaymentOption.TRANSFER));
+        PaymentDetails webPaymentDetails = paymentGatewayService.initialize(new InitializePaymentDTO(cart1,PaymentOption.WEB));
 
         assertTrue(transferPaymentDetails.getReference().startsWith("TRF"));
         assertTrue(webPaymentDetails.getReference().startsWith("WEB"));
@@ -379,7 +387,7 @@ public class ServiceTest {
 
     @Test
     public void testCheckout(){
-        User user = userService.saveUser(TestUtils.createUser());
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();//userService.saveUser(TestUtils.createUser());
         List<Author> authors = new ArrayList<>();
         List<Book> books = new ArrayList<>();
 
@@ -450,19 +458,19 @@ public class ServiceTest {
 
 
 
-        PaymentDetails transferPaymentDetails = checkoutService.setupPaymentEnvironment(new InitializePaymentDTO(cart1),PaymentOption.TRANSFER);
-        PaymentDetails webPaymentDetails = checkoutService.setupPaymentEnvironment(new InitializePaymentDTO(cart2),PaymentOption.WEB);
+        PaymentDetails transferPaymentDetails = checkoutService.setupPaymentEnvironment(new InitializePaymentDTO(cart1,PaymentOption.TRANSFER));
+        PaymentDetails webPaymentDetails = checkoutService.setupPaymentEnvironment(new InitializePaymentDTO(cart2,PaymentOption.WEB));
 
         Map<String, Object> details = new HashMap<>(){{
             put("user_bank_details", new BankDetail("ACCESS BANK","0098"));
         }};
 
 
-        PaymentDetails ussdPaymentDetails = checkoutService.setupPaymentEnvironment(new InitializePaymentDTO(cart3,details),PaymentOption.USSD);
+        PaymentDetails ussdPaymentDetails = checkoutService.setupPaymentEnvironment(new InitializePaymentDTO(cart3,details,PaymentOption.USSD));
 
-        ShoppingCart savedCart1 = checkoutService.checkout(transferPaymentDetails, PaymentOption.TRANSFER);
-        ShoppingCart savedCart2 = checkoutService.checkout(webPaymentDetails, PaymentOption.WEB);
-        ShoppingCart savedCart3 = checkoutService.checkout(ussdPaymentDetails, PaymentOption.USSD);
+        ShoppingCart savedCart1 = checkoutService.checkout(transferPaymentDetails);
+        ShoppingCart savedCart2 = checkoutService.checkout(webPaymentDetails);
+        ShoppingCart savedCart3 = checkoutService.checkout(ussdPaymentDetails);
 
         assertTrue(transferPaymentDetails.getReference().startsWith("TRF"));
         assertTrue(webPaymentDetails.getReference().startsWith("WEB"));
@@ -481,6 +489,20 @@ public class ServiceTest {
         assertNotEquals(savedCart2.getId(), savedCart3.getId());
         assertNotEquals(savedCart1.getId(), savedCart3.getId());
 
+
+    }
+
+    @BeforeEach
+    void login(){
+        User user = TestUtils.createUser();
+        String password = user.getPassword();
+        user = userService.saveUser(user);
+
+        String jwtToken = userService.login(user.getUsername(), password).getToken();
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(jwtToken, null);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
     }
 }

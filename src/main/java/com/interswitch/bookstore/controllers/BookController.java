@@ -17,8 +17,8 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping("")
-    public ApiResponse<PaginateApiResponse> getFilteredBookSearch(HttpServletRequest request) {
-        return new ApiResponse<>(bookService.searchBook(request));
+    public PaginateApiResponse getFilteredBookSearch(HttpServletRequest request) {
+        return bookService.searchBook(request);
 
     }
 }

@@ -3,6 +3,7 @@ package com.interswitch.bookstore.services;
 import com.interswitch.bookstore.models.ShoppingCart;
 import com.interswitch.bookstore.utils.payment.PaymentChoiceFactory;
 import com.interswitch.bookstore.utils.payment.PaymentOption;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @EnableScheduling
 @Component
+@Slf4j
 public class BackgroundService {
     @Autowired
     private ShoppingCartService shoppingCartService;
@@ -29,6 +31,7 @@ public class BackgroundService {
         Page<ShoppingCart> pendings;
 
         do {
+            log.info("requering from page {}, with size {}",pageNumber,pageSize);
             pageRequest = PageRequest.of(pageNumber, pageSize);
             pendings = shoppingCartService.findPendingShopping(pageRequest);
             List<ShoppingCart> pendingCarts = pendings.getContent();

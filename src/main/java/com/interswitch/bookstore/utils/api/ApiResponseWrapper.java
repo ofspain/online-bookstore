@@ -24,6 +24,8 @@ public class ApiResponseWrapper<T> {
     @JsonIgnore
     private HttpStatus httpStatus = HttpStatus.OK;
 
+    public ApiResponseWrapper(){}
+
 
     public ApiResponseWrapper(T body) {
         setData(body);

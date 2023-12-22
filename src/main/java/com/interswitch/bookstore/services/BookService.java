@@ -1,5 +1,6 @@
 package com.interswitch.bookstore.services;
 
+import com.interswitch.bookstore.exceptions.InconsistentException;
 import com.interswitch.bookstore.models.Author;
 import com.interswitch.bookstore.models.Book;
 import com.interswitch.bookstore.models.Genre;
@@ -8,6 +9,7 @@ import com.interswitch.bookstore.utils.BasicUtil;
 import com.interswitch.bookstore.utils.api.PaginateApiResponse;
 import com.interswitch.bookstore.utils.api.PaginationBody;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+@Slf4j
 @Service
 public class BookService {
     @Autowired
@@ -30,7 +33,17 @@ public class BookService {
     private BookRepository bookRepository;
 
     public Book saveBook(Book book){
-        return bookRepository.save(book);
+        if(ISBNInUse(book.getIsbn())){
+            log.error("isbn already in used while persisting book {} ", book.getIsbn());
+            throw new InconsistentException("ISBN IN USE", "9000");
+        }
+        book = bookRepository.save(book);
+        log.info("saved book {} ", book.getIsbn());
+        return  book;
+    }
+
+    public boolean ISBNInUse(String isbn){
+        return bookRepository.countByIsbn(isbn) > 0;
     }
 
 

@@ -4,25 +4,33 @@ import com.interswitch.bookstore.dtos.InitializePaymentDTO;
 import com.interswitch.bookstore.models.CartStatus;
 import com.interswitch.bookstore.models.ShoppingCart;
 import com.interswitch.bookstore.utils.payment.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
+@Slf4j
 public class CheckoutService {
 
 
     private PaymentChoiceFactory choiceFactory;
     private CartStateMachine stateMachine;
+    private UserService userService;
 
     @Autowired
-    public CheckoutService(PaymentChoiceFactory choiceFactory, CartStateMachine stateMachine){
+    public CheckoutService(PaymentChoiceFactory choiceFactory, CartStateMachine stateMachine, UserService userService){
         this.choiceFactory = choiceFactory;
         this.stateMachine = stateMachine;
+        this.userService = userService;
     }
 
-    public ShoppingCart checkout(PaymentDetails paymentRequest, PaymentOption paymentOption) {
+    public ShoppingCart checkout(PaymentDetails paymentRequest) {
+
+        log.info("checking out for {}",paymentRequest.getReference());
+
+        PaymentOption paymentOption = paymentRequest.getPaymentOption();
 
         PaymentResponse paymentResponse = choiceFactory.getPaymentChoiceImplementation(paymentOption)
                 .processPayment(paymentRequest);
@@ -44,14 +52,15 @@ public class CheckoutService {
         if(newStatus.equals(CartStatus.PROCESSED)){
             shoppingCart.setDatePaid(new Date());
         }
+        shoppingCart.setUser(userService.getAuthUser());
         shoppingCart.setTransactionReference(paymentRequest.getReference());
         shoppingCart = stateMachine.transition(shoppingCart, newStatus);
 
         return shoppingCart;
     }
 
-    public PaymentDetails setupPaymentEnvironment(InitializePaymentDTO initializePaymentDTO, PaymentOption paymentOption){
-        return choiceFactory.getPaymentChoiceImplementation(paymentOption).initialize(initializePaymentDTO);
+    public PaymentDetails setupPaymentEnvironment(InitializePaymentDTO initializePaymentDTO){
+        return choiceFactory.getPaymentChoiceImplementation(initializePaymentDTO.getPaymentOption()).initialize(initializePaymentDTO);
     }
 }
 

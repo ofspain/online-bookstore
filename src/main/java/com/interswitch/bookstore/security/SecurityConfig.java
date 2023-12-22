@@ -29,19 +29,15 @@ public class SecurityConfig {
     @Autowired
     private JwtUserDetailsService jwtUserDetailsService;
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain() {
-//        return security -> {
-//            security.ignoring().antMatchers("/api/auth/**", "/h2-console/**");
-//        };
-//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 
-        http.csrf().disable().authorizeRequests().
-        anyRequest().authenticated().and()
+        http.csrf().disable().authorizeRequests()
+                .requestMatchers("api/shopping/**", "api/users/**").hasAnyRole("USER")
+                .anyRequest().authenticated()
+                .and()
                 .exceptionHandling().authenticationEntryPoint(
                         (request, response, authException) -> {
                             Map<String, Object> responseMap = new HashMap<>();

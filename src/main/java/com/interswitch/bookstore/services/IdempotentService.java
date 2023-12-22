@@ -3,9 +3,11 @@ package com.interswitch.bookstore.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interswitch.bookstore.dtos.IdempotenceDTO;
 import com.interswitch.bookstore.utils.BasicUtil;
 import com.interswitch.bookstore.utils.api.ApiResponse;
 
+import com.interswitch.bookstore.utils.api.ApiResponseWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,8 +30,8 @@ public class IdempotentService {
             String v = redisTemplate.opsForValue().get("idempotent:"+idempotentKey);
             if(BasicUtil.validString(v)){
                 try {
-                    ApiResponse<?> result = new ObjectMapper().readValue(v, new TypeReference<ApiResponse<?>>() {});
-                    return result;
+                    IdempotenceDTO<?> result = new ObjectMapper().readValue(v, new TypeReference<IdempotenceDTO<?>>() {});
+                    return new ApiResponse<>(result.getResponseWrapper(), result.getStatus());
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                     return null;
@@ -44,9 +46,9 @@ public class IdempotentService {
     }
 
 
-    public void saveResponse(String idempotentKey, ApiResponse<?> response) {
+    public void saveResponse(String idempotentKey, IdempotenceDTO<?> idempotenceDTO) {
         try {
-            String resp = new ObjectMapper().writeValueAsString(response);
+            String resp = new ObjectMapper().writeValueAsString(idempotenceDTO);
 
             redisTemplate.opsForValue().set("idempotent:" + idempotentKey, resp);
         } catch (JsonProcessingException e) {
