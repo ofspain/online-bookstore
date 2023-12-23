@@ -15,6 +15,7 @@
 ---
 ### RUNING APPLICATION
 - The application can be package as jar artifact by running the maven command: **mvn clean package** from the application root folder
+- The commented line **//@SpringBootTest(classes = TestConfig.class)** on AuthController and UnAuthController are required to run the test cases from the IDE
 - once the jar file is generated, we can run the application as a normal java application using the command: **java -jar bookstore-0.0.1.jar**
 - Note: **bookstore-0.0.1.jar** is the name of the jar file generated and the run command above assumes we are running from the **/target directory** of the root folder of the application
 - We can however run from any other directory by putting the jar file in that directory and specifying the path to it in the run command thus  **java -jar <path-to-jar>/bookstore-0.0.1.jar**
